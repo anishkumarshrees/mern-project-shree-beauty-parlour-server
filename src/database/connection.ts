@@ -1,7 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
 import envConfig from "../config/config.ts";
+import user from "./models/user.model.ts";
 
-const sequelize =new Sequelize(envConfig.connectionString as string)
+const sequelize =new Sequelize(envConfig.connectionString as string,{
+     models : [__dirname + '/models']
+})
 
 try {
     sequelize.authenticate()

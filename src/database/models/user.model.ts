@@ -15,16 +15,20 @@ class user extends Model{
     })
     declare id : string
     @Column({
-        type : DataType.STRING
+        type : DataType.STRING,
+        
     })
 
-    declare username:string
+    declare userName:string
+
     @Column({
         type : DataType.STRING
     })
     declare password:string
+
     @Column({
-        type : DataType.STRING
+        type : DataType.STRING,
+        unique:true
     })
     declare email:string
 

@@ -8,7 +8,7 @@ db query - table maa insert garni kura
 */ 
 
 import type { Request ,Response } from "express";
-import user from "../../../models/user.model";
+import user from "../../../database/models/user.model";
 import  bcrypt  from "bcrypt";
 //functional bbased code
 // const registerUser =async  (req:Request,res:Response) =>{
@@ -36,7 +36,7 @@ import  bcrypt  from "bcrypt";
 //oop based code
 class AuthController{
   static async registerUser(req:Request, res:Response){
-    const {userName,password,email}=req.body
+    const {userName, password, email}=req.body
 
  if(!userName || !password || !email){
     res.status(400).json({
@@ -46,7 +46,8 @@ class AuthController{
     //insert into users table
    await user.create({
         userName : userName,
-        password:password,
+        //.hashsync(kunlairakhni,kati strong)
+        password:bcrypt.hashSync(password,12),
         email:email
     })
     res.status(200).json({
