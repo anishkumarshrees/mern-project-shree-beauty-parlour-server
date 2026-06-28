@@ -17,5 +17,12 @@ try {
     console.log(error)
 }
 
+//migrate garna parxa/push garna parxa
+
+sequelize.sync({force:true})
+.then(()=>{
+console.log("migragted success")
+})
+
 
 export default sequelize
