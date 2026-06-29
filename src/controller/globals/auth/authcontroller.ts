@@ -55,6 +55,45 @@ class AuthController{
     })
  }
 }
+static async login(req:Request,res:Response){
+    //first maa user accept garna paryo
+    // accept incoming data --> email,password
+    const {email, password}=req.body
+    if(!email || !password){
+        res.status(400).json({
+            message:"please rovide all imformation"
+        })
+        return
+    }
+
+    //user xa ki nai herna paryo
+    //first maa check email exist or not 
+ const [data] =  await user.findAll({
+        where:{
+            email : email
+        }
+    })
+   //if not exist
+    if(!data){
+        res.status(400).json({
+            message:"no user with that email 🥲"
+        })
+    } //if exist check password
+    else{
+      const isEqual=  bcrypt.compareSync(password,data.password)
+        if(!isEqual){
+            res.status(400).json({
+                messgae:"invalid password"
+            })
+        }
+        else{
+            res.status(200).json({
+                message : "login successfully"
+            })
+        }
+    }
+    //if pw milyo vani-> token generate(jwt)
+}
 }
 
 export  {AuthController}
