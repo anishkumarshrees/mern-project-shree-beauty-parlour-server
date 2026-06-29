@@ -10,6 +10,7 @@ db query - table maa insert garni kura
 import type { Request ,Response } from "express";
 import user from "../../../database/models/user.model";
 import  bcrypt  from "bcrypt";
+import generateToken from "../../../services/generateToken";
 //functional bbased code
 // const registerUser =async  (req:Request,res:Response) =>{
 // //  const userName=  req.body.username
@@ -36,7 +37,7 @@ import  bcrypt  from "bcrypt";
 //oop based code
 class AuthController{
   static async registerUser(req:Request, res:Response){
-    const {userName, password, email}=req.body
+    const {userName, password, email, role}=req.body
 
  if(!userName || !password || !email){
     res.status(400).json({
@@ -48,7 +49,8 @@ class AuthController{
         userName : userName,
         //.hashsync(kunlairakhni,kati strong)
         password:bcrypt.hashSync(password,12),
-        email:email
+        email:email,
+        role:role
     })
     res.status(200).json({
         message:"user registered successfully"
@@ -87,8 +89,10 @@ static async login(req:Request,res:Response){
             })
         }
         else{
+          const token =  generateToken(data.id)
             res.status(200).json({
-                message : "login successfully"
+                message : "login successfully",
+                token : token
             })
         }
     }

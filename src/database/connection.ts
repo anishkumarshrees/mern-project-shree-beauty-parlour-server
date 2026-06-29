@@ -22,7 +22,7 @@ try {
 
 //migrate garna parxa/push garna parxa
 
-sequelize.sync({force:true})
+sequelize.sync({force:false})
 .then(()=>{
 console.log("migragted success")
 })

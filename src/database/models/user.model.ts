@@ -27,13 +27,13 @@ class user extends Model{
     declare password:string
 
     @Column({
-        type : DataType.STRING,
-        unique:true
+        type : DataType.STRING
+      
     })
     declare email:string
 
     @Column({
-        type : DataType.ENUM("admin","customer"),
+        type : DataType.ENUM('admin','customer'),
         defaultValue:"customer"
     })
     declare role:string
