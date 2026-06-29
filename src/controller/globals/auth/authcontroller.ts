@@ -11,6 +11,8 @@ import type { Request ,Response } from "express";
 import user from "../../../database/models/user.model";
 import  bcrypt  from "bcrypt";
 import generateToken from "../../../services/generateToken";
+import generateOtp from "../../../services/generateOtp";
+import sendMail from "../../../services/sendMail";
 //functional bbased code
 // const registerUser =async  (req:Request,res:Response) =>{
 // //  const userName=  req.body.username
@@ -51,6 +53,11 @@ class AuthController{
         password:bcrypt.hashSync(password,12),
         email:email,
         role:role
+    })
+    await sendMail({
+        to:email,
+        subject : " Registred successfullly",
+        text:"welcome to our beauty parlour"
     })
     res.status(200).json({
         message:"user registered successfully"
@@ -97,6 +104,40 @@ static async login(req:Request,res:Response){
         }
     }
     //if pw milyo vani-> token generate(jwt)
+}
+static async handleForgotPassword(req:Request,res:Response){
+const {email}=req.body
+    if(!email){
+         res.status(400).json({
+    message : "pleasve provide email"})
+    return
+         }
+    const [data]= await user.findAll({
+        where:{
+            email : email
+        }
+    })
+    if(!data){
+        return res.status(404).json({
+            email : "email not registred"
+        })
+        return
+    }
+    //email xa vani otp pathauna paryo(generat otp and sent to mail)
+    const otp = generateOtp()
+   await sendMail({
+   
+        to:email,
+        subject:"OTP COde",
+        text:`You just request to reset password. Here is your otp , ${otp}`
+    })
+    data.otp = otp.toString()
+    data.optGeneratedTime = Date.now().toString()
+    await data.save()
+    res.status(200).json({
+        message:"password reset otp token"
+    })
+
 }
 }
 

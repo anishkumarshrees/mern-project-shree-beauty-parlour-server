@@ -38,6 +38,15 @@ class user extends Model{
     })
     declare role:string
 
+    @Column({
+        type : DataType.STRING
+    })
+    declare otp:string
+    
+    @Column({
+        type : DataType.STRING
+    })
+    declare optGeneratedTime : string
 }
 
 export default user
