@@ -17,6 +17,7 @@ import findData from "../../../services/findData";
 import checkOtpExpiration from "../../../services/checkOtpExpiration";
 import sendResponse from "../../../services/sendResponse";
 import user from "../../../database/models/user.model";
+import envConfig from "../../../config/config";
 //functional bbased code
 // const registerUser =async  (req:Request,res:Response) =>{
 // //  const userName=  req.body.username
@@ -49,7 +50,20 @@ class AuthController{
     res.status(400).json({
         message : "please provide username, password, email"
     })
- }else{
+    return
+ }
+  const [data]  = await user.findAll({
+        where:{
+            email: email
+        }
+    })
+    if(data){
+     res.status(400).json({
+            message: "please try again later"
+        })
+        return
+    }
+
     //insert into users table
    await user.create({
         userName : userName,
@@ -66,7 +80,7 @@ class AuthController{
     res.status(200).json({
         message:"user registered successfully"
     })
- }
+ 
 }
 static async login(req:Request,res:Response){
     //first maa user accept garna paryo
