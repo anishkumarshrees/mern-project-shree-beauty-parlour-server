@@ -8,11 +8,15 @@ db query - table maa insert garni kura
 */ 
 
 import type { Request ,Response } from "express";
-import user from "../../../database/models/user.model";
+
 import  bcrypt  from "bcrypt";
 import generateToken from "../../../services/generateToken";
 import generateOtp from "../../../services/generateOtp";
 import sendMail from "../../../services/sendMail";
+import findData from "../../../services/findData";
+import checkOtpExpiration from "../../../services/checkOtpExpiration";
+import sendResponse from "../../../services/sendResponse";
+import user from "../../../database/models/user.model";
 //functional bbased code
 // const registerUser =async  (req:Request,res:Response) =>{
 // //  const userName=  req.body.username
@@ -138,6 +142,75 @@ const {email}=req.body
         message:"password reset otp token"
     })
 
+}
+static async verifyOtp(req:Request,res:Response){
+    const {otp,email}=req.body
+    if(!otp || !email){
+        sendResponse(res,400,"please provide opt and email")
+        return
+    }
+    const User = await findData(user,email)
+    if(!user){
+        sendResponse(res,400,"no user with that email")
+        return
+    }
+    //otp verification
+    const [data] = await user.findAll({
+        where:{
+            otp,
+            email
+        }
+    })
+    if(!data){
+        sendResponse(res,400,'Invalid OTP')
+    }
+    const otpGeneratedTime = data?.optGeneratedTime
+    checkOtpExpiration(res,otpGeneratedTime as string,120000)
+}
+
+static async resetPassword(req:Request,res:Response){
+    const {newPassword,confirmPassword,email}= req.body
+    if(!newPassword || !confirmPassword || !email){
+        sendResponse(res,400,"please provide newPassword, confirmPassword, email, otp")
+        return
+    }
+    if(newPassword !== confirmPassword){
+        sendResponse(res,400,"newPassword and ConfirmPassowrd must be same")
+        return
+    }
+    const User = await findData(user,email)
+    if(!User){
+        sendResponse(res,404,"no email with that user")
+    }
+    User.password = bcrypt.hashSync(newPassword,12)
+    await User.save()
+    sendResponse(res,200,"password reset successfully")
+}
+static async fetchUsers(req:Request,res:Response){
+    const Users= await user.findAll({
+        attributes : ["id","userName","email"]
+    })
+    res.status(200).json({
+        message:"user fetched successfully",
+        data : Users
+    })
+}
+static async deleteUser(req:Request,res:Response){
+    const {id} = req.params
+    if(!id){
+        res.status(400).json({
+            message: "please provide Id"
+        })
+        return
+    }
+    await user.destroy({
+        where:{
+            id
+        }
+    })
+    res.status(200).json({
+        message:  "user deleted successfully"
+    })
 }
 }
 
