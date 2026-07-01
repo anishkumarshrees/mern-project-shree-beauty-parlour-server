@@ -1,6 +1,8 @@
 import { Sequelize } from "sequelize-typescript";
 import envConfig from "../config/config.ts";
 import user from "./models/user.model.ts";
+import Product from "./models/product.mode.ts";
+import Category from "./models/category.model.ts";
 
 const sequelize =new Sequelize(envConfig.connectionString as string,{
      models : [__dirname + '/models']
@@ -26,6 +28,16 @@ sequelize.sync({force:false , alter:false})
 .then(()=>{
 console.log("migragted success")
 })
+
+//realtionship between prduct and category
+
+Product.belongsTo(Category)
+
+Category.hasOne(Product)
+
+
+
+
 
 
 export default sequelize
