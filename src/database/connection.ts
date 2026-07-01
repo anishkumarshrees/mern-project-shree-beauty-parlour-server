@@ -24,7 +24,7 @@ try {
 
 //migrate garna parxa/push garna parxa
 //fore:true garyo vani kei change garda tarw false garda chai change garda chagne hudaina so alter:true le teslai help garxa 
-sequelize.sync({force:false , alter:false})
+sequelize.sync({force:false , alter:true})
 .then(()=>{
 console.log("migragted success")
 })

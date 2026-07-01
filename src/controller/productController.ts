@@ -1,39 +1,42 @@
 import { Request, Response } from "express";
 import Product from "../database/models/product.mode";
 import Category from "../database/models/category.model";
-interface ProductRequest extends Request{
-    file? : {
-        filename : string
-    }
-}
+// interface ProductRequest extends Request{
+//     file? : {
+//         filename : string
+//     }
+// }
 
 class ProductController{
-  async  createProduct(req:ProductRequest,res:Response):Promise<void>{
-        const {productName,productDescription,productTotalStock,discount,CategoryId} = req.body
-     const filename =   req.file ? req.file.filename : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFNLdaXREebZMuoIgvuA28PdM3-E3SyaeUa0asbd52Og&s"
-        if(!productName || !productDescription || !productTotalStock  ||!CategoryId){
+  async  createProduct(req:Request,res:Response):Promise<void>{
+        const {productName,productDescription,productTotalStock,discount,CategoryId,productPrice} = req.body
+     const filename =   req.file ? req.file.filename : "anish.jpg"
+        if(!productName || !productDescription || !productTotalStock  ||!CategoryId || !productPrice ){
             res.status(400).json({
                 message:"please provide all the information of product"
             })
             return  
     }
-    await Product.create({
+  const product =  await Product.create({
 productName,
 productDescription,
 productTotalStock,
 discount:discount || 0,
-CategoryId,
-ProductImage : filename
+CategoryId:CategoryId,
+productPrice,
+productImage : filename,
+
     })
     res.status(200).json({
-        message:"Product created successfully"
+        message:"Product created successfully",data:product
     })
 }
-async getAllProducts(req:ProductRequest,res:Response):Promise<void>{
+async getAllProducts(req:Request,res:Response):Promise<void>{
     const datas = await Product.findAll({
         include : [
             {
-                model : Category
+                model : Category,
+                attributes :["id","categoryName"]
             }
         ]
     })
@@ -43,7 +46,7 @@ async getAllProducts(req:ProductRequest,res:Response):Promise<void>{
     })
 
 }
-async getSingleProduct(req:ProductRequest,res:Response):Promise<void>{
+async getSingleProduct(req:Request,res:Response):Promise<void>{
     const {id} = req.params
     const datas = await Product.findAll({
         where :{
@@ -61,7 +64,7 @@ async getSingleProduct(req:ProductRequest,res:Response):Promise<void>{
     })
 
 }
-async deleteProduct(req:ProductRequest,res:Response):Promise<void>{
+async deleteProduct(req:Request,res:Response):Promise<void>{
     const {id} = req.params
     const datas = await Product.findAll({
         where : {
@@ -82,7 +85,7 @@ async deleteProduct(req:ProductRequest,res:Response):Promise<void>{
         message : "product delted succesfuuly"
     })
 }
-  async updatePrpduct(req:ProductRequest,res:Response):Promise<void>{
+  async updatePrpduct(req:Request,res:Response):Promise<void>{
         const {id} = req.params
         
     
