@@ -34,15 +34,15 @@ console.log("migragted success")
 
 //realtionship between prduct and category
 
-Product.belongsTo(Category, {foreignKey:'categoryId'})
-Category.hasOne(Product, {foreignKey:'categoryId'})
+Product.belongsTo(Category)
+Category.hasOne(Product)
 
 //user and order relationship 
 user.hasMany(Order)
 Order.belongsTo(user)
 
 //order and orderdetails relationship
-Order.hasMany(OrderDetails)
+Order.hasOne(OrderDetails)
 OrderDetails.belongsTo(Order)   
 
 
