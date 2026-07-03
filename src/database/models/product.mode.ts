@@ -53,7 +53,7 @@ class Product extends Model{
     })
     declare productImage:string
    
-
+    
     
 }
 

@@ -51,7 +51,7 @@ Payment.belongsTo(Order)
 Order.hasOne(Payment)
 
 //order and product relationship
-Product.hasMany(OrderDetails)
-OrderDetails.belongsTo(Product)
+Product.hasMany(OrderDetails,{foreignKey:'productId'})
+OrderDetails.belongsTo(Product,{foreignKey:'productId'})
 
 export default sequelize
