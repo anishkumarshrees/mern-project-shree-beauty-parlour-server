@@ -6,6 +6,7 @@ import Category from "./models/category.model.ts";
 import OrderDetails from "./models/orderDetails.ts";
 import Order from "./models/order.model.ts";
 import Payment from "./models/payment.model.ts";
+import Cart from "./models/cart.model.ts";
 
 const sequelize =new Sequelize(envConfig.connectionString as string,{
      models : [__dirname + '/models']
@@ -27,7 +28,7 @@ try {
 
 //migrate garna parxa/push garna parxa
 //fore:true garyo vani kei change garda tarw false garda chai change garda chagne hudaina so alter:true le teslai help garxa 
-sequelize.sync({force:false , alter:false})
+sequelize.sync({force:false , alter:true})
 .then(()=>{
 console.log("migragted success")
 })
@@ -53,5 +54,13 @@ Order.hasOne(Payment)
 //order and product relationship
 Product.hasMany(OrderDetails,{foreignKey:'productId'})
 OrderDetails.belongsTo(Product,{foreignKey:'productId'})
+
+//cart and order raltionship
+Cart.belongsTo(user)
+user.hasOne(Cart)
+
+//cart and product relationship
+Cart.belongsTo(Product)
+Product.hasMany(Cart)
 
 export default sequelize
