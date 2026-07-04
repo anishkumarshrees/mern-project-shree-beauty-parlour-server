@@ -5,8 +5,10 @@ const app = express()
 import cateogryRoute from "./route/categoryController.ts"
 import productRoute from "./route/productRoute.ts"
 
+
 import orderRoute from "./route/orderRoute.ts"
 import cartRoute from "./route/cartRoute.ts"
+
 
 app.use(express.json());
 app.use("/api/",authRoute)
