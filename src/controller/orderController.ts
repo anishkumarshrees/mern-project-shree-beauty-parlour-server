@@ -30,6 +30,30 @@ class OrderController{
             })
             return
         }
+
+        for (const product of products) {
+            const dbProduct = await Product.findByPk(product.productId);
+
+            if (!dbProduct) {
+                res.status(404).json({
+                    message: "product not found"
+                })
+                return;
+            }
+
+            const requestedQty = Number(product.productQty);
+
+            if (dbProduct.productTotalStock < requestedQty) {
+                res.status(400).json({
+                    message: "out of stock"
+                })
+                return;
+            }
+
+            dbProduct.productTotalStock = dbProduct.productTotalStock - requestedQty;
+            await dbProduct.save();
+        }
+
         //for order
         console.log(userId)
        const orderData= await Order.create({

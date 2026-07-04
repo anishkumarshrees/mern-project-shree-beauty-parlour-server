@@ -19,6 +19,23 @@ class CartController {
             })
             return
         }//check if that item already exit on that user cart-->if uyes -->just qty++/ else insert
+        const product = await Product.findByPk(productId as string);
+
+if (!product) {
+    res.status(404).json({
+        message: "product not found"
+    })
+    return;
+}
+
+const requestedQty = Number(quantity);
+
+if (product.productTotalStock < requestedQty) {
+    res.status(400).json({
+        message: "out of stock"
+    })
+    return;
+}
      let cartOfUser = await  Cart.findOne({
             where : {
                 productId,
