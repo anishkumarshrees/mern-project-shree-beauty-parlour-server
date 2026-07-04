@@ -117,4 +117,4 @@ async deleteProduct(req:Request,res:Response):Promise<void>{
 
 }
 
-export default new ProductController
+export default new ProductController()

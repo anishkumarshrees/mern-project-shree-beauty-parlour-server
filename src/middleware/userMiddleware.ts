@@ -73,4 +73,4 @@ class UserMiddleware{
     }
 }
 
-export default new UserMiddleware
+export default new UserMiddleware()

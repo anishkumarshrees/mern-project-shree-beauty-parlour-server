@@ -12,7 +12,7 @@ class CartController {
     async addToCart(req:AuthRequest,res:Response){
         //userId, productId, quantity
         const userId = req.user?.id
-        const {productId,quantity} = req.body
+        const {productId, quantity} = req.body
         if(!productId || !quantity){
             res.status(400).json({
                 message : "please provide productId, quantity"
@@ -115,4 +115,4 @@ class CartController {
     }
 }
 
-export default new CartController
+export default new CartController()
