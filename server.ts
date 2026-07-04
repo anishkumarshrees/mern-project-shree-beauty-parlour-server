@@ -5,6 +5,8 @@ import categoryController from "./src/controller/categoryController.ts";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import user from "./src/database/models/user.model.ts";
+import Order from "./src/database/models/order.model.ts";
+import { OrderStatus } from "./src/globals/types/index.ts";
 
 function startServer() {
   const port = envConfig.port || 4000;
@@ -16,21 +18,21 @@ function startServer() {
   });
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin:  ["http://localhost:5173", "http://localhost:3000"],
     },
   });
   let onlineUsers:{
     socketId:string,userId:string,role:string
   } []= [];
   let addToOnlineUsers=(socketId:string,userId:string,role:string)=>{
-      onlineUsers=  onlineUsers.filter((user)=>user.userId ! ==userId)
+      onlineUsers=  onlineUsers.filter((user)=>user.userId !==userId)
       onlineUsers.push({socketId,userId,role})
   }
   io.on("connection", (socket) => {
-    const { token } = socket.handshake.auth;
+    const  token  = socket.handshake.headers.token
     if (token) {
       jwt.verify(
-        token,
+        token as string,
         envConfig.jwtsecretkey as string,
         async (err: any, result: any) => {
           if (err) {
@@ -47,10 +49,21 @@ function startServer() {
         },
       );
     }
-    socket.on("updateOrderstatus",(data)=>{
+    else{
+        socket.emit("error","please provide token")
+    }
+    socket.on("updateOrderstatus",async (data)=>{
+      console.log(data)
         const {status,orderId,userId} = data
       const findUser =  onlineUsers.find(user=>user.userId == userId)
       if(findUser){
+       await Order.update({
+          OrderStatus : status
+        },{
+          where:{
+            id : orderId
+          }
+        })
         io.to(findUser.socketId).emit("success","Order status updated successfully")
       }else{
         socket.emit("erroe","user is not online")
