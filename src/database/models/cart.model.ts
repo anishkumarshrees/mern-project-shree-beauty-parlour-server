@@ -1,26 +1,35 @@
-
-import { Table, Column,DataType, Model, PrimaryKey } from "sequelize-typescript";
-
+import { Table, Column, DataType, Model } from "sequelize-typescript";
 
 @Table({
-    tableName:"cart",
-    modelName : "Cart",
-    timestamps : true
+  tableName: "cart",
+  modelName: "Cart",
+  timestamps: true,
 })
+class Cart extends Model {
+  @Column({
+    primaryKey: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+  })
+  declare id: string;
 
-class Cart  extends Model{
-    @Column({
-        primaryKey : true,
-        type : DataType.UUID,
-        defaultValue : DataType.UUIDV4
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+  })
+  declare userId: string;
 
-    })
-    declare id:string
-    @Column({
-        type : DataType.INTEGER,
-        allowNull: false
-    })
-    declare quantity:number
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+  })
+  declare productId: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare quantity: number;
 }
 
-export default Cart
+export default Cart;

@@ -65,7 +65,7 @@ class AuthController{
     }
 
     //insert into users table
-   await user.create({
+  const User= await user.create({
         userName : userName,
         //.hashsync(kunlairakhni,kati strong)
         password:bcrypt.hashSync(password,12),
@@ -78,7 +78,8 @@ class AuthController{
         text:"welcome to our beauty parlour"
     })
     res.status(200).json({
-        message:"user registered successfully"
+        message:"user registered successfully",
+        data : User
     })
  
 }

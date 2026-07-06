@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Cart from "../database/models/cart.model";
 import Product from "../database/models/product.mode";
+import Category from "../database/models/category.model";
 
 interface AuthRequest extends Request{
     user? :{
@@ -52,8 +53,21 @@ if (product.productTotalStock < requestedQty) {
             quantity
         })
         }
+        const cartData = await Cart.findAll({
+            where :{
+                userId
+            },include:[
+                {
+                    model: Product,
+                    include:[{
+                        model : Category
+                    }]
+                }
+            ]
+        })
        res.status(200).json({
-        message:"product added to cart"
+        message:"product added to cart",
+        data : cartData
        })
     }
     async getCartItems(req:AuthRequest,res:Response){
@@ -65,7 +79,7 @@ if (product.productTotalStock < requestedQty) {
             //esari product ko sabai details aaunxa
             include : [{
                 model :Product,
-                attributes :["id",'productName',"productPrice",'productImageUrl']
+                attributes :["id",'productName',"productPrice",'productImage']
             }]
         })
         if(cartItems.length ===0){

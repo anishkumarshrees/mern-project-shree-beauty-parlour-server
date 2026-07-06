@@ -35,8 +35,8 @@ console.log("migragted success")
 
 //realtionship between prduct and category
 
-Product.belongsTo(Category)
-Category.hasOne(Product)
+Product.belongsTo(Category, { foreignKey: "categoryId" });
+Category.hasMany(Product, { foreignKey: "categoryId" });
 
 //user and order relationship 
 user.hasMany(Order)
@@ -56,11 +56,11 @@ Product.hasMany(OrderDetails,{foreignKey:'productId'})
 OrderDetails.belongsTo(Product,{foreignKey:'productId'})
 
 //cart and order raltionship
-Cart.belongsTo(user)
-user.hasOne(Cart)
+Cart.belongsTo(user, { foreignKey: "userId" });
+user.hasMany(Cart, { foreignKey: "userId" });
 
 //cart and product relationship
-Cart.belongsTo(Product)
-Product.hasMany(Cart)
+Cart.belongsTo(Product, { foreignKey: "productId" });
+Product.hasMany(Cart, { foreignKey: "productId" });
 
 export default sequelize
