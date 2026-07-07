@@ -28,7 +28,7 @@ try {
 
 //migrate garna parxa/push garna parxa
 //fore:true garyo vani kei change garda tarw false garda chai change garda chagne hudaina so alter:true le teslai help garxa 
-sequelize.sync({force:false , alter:false})
+sequelize.sync({force:false , alter:true})
 .then(()=>{
 console.log("migragted success")
 })
@@ -39,17 +39,18 @@ Product.belongsTo(Category, { foreignKey: "categoryId" });
 Category.hasMany(Product, { foreignKey: "categoryId" });
 
 //user and order relationship 
-user.hasMany(Order)
-Order.belongsTo(user)
+user.hasMany(Order,{foreignKey:'userId'})
+Order.belongsTo(user,{foreignKey:'userId'})
 
 //order and orderdetails relationship
-Order.hasOne(OrderDetails)
-OrderDetails.belongsTo(Order)   
+Order.hasOne(OrderDetails,{foreignKey:'orderId'})
+OrderDetails.belongsTo(Order,{foreignKey:'orderId'})
+ 
 
 
 //payment and order raltionship
-Payment.belongsTo(Order)
-Order.hasOne(Payment)
+Payment.hasOne(Order,{foreignKey:'paymentId'})
+Order.belongsTo(Payment,{foreignKey:'paymentId'})
 
 //order and product relationship
 Product.hasMany(OrderDetails,{foreignKey:'productId'})
