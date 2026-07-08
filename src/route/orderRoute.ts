@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import userMiddleware from "../middleware/userMiddleware";
+import userMiddleware, { Role } from "../middleware/userMiddleware";
 import OrderController from "../controller/orderController";
 import errorHandler from "../services/errorHanndler";
 import orderController from "../controller/orderController";
@@ -23,13 +23,16 @@ router
   )
   .get(
     userMiddleware.isUserLoggedIn,
-    errorHandler(orderController.fetchMyOrdersDetail),
+    errorHandler(orderController.fetchMyOrderDetail),
   );
+ router.route("/admin/cancel-order/:id").post(userMiddleware.isUserLoggedIn ,userMiddleware.accessTo(Role.Admin),errorHandler(orderController.cancelOrder))
+  router.route("/admin/delete-order/:id").post(userMiddleware.isUserLoggedIn ,userMiddleware.accessTo(Role.Admin),errorHandler(orderController.deleteOrder))  
+ router.route("/cancel-order/:id").patch(userMiddleware.isUserLoggedIn ,userMiddleware.accessTo(Role.Customer),errorHandler(orderController.cancelOrder)) 
 router
   .route("/:id")
   .get(
     userMiddleware.isUserLoggedIn,
-    errorHandler(orderController.fetchMyOrdersDetail),
+    errorHandler(orderController.fetchMyOrderDetail),
   );
 
 export default router;

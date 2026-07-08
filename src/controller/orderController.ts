@@ -2,7 +2,7 @@ import { Request, response, Response } from "express";
 import Order from "../database/models/order.model";
 import OrderDetails from "../database/models/orderDetails";
 import user from "../database/models/user.model";
-import { PaymentMethod, PaymentStatus } from "../globals/types";
+import { OrderStatus, PaymentMethod, PaymentStatus } from "../globals/types";
 import Payment from "../database/models/payment.model";
 import axios from "axios";
 import Product from "../database/models/product.mode";
@@ -16,6 +16,9 @@ interface IProduct {
 
 interface OrderRequest extends Request {
   user?: {
+    id: string;
+  };
+  params: {
     id: string;
   };
 }
@@ -81,7 +84,6 @@ class OrderController {
       paymentMethod: paymentMethod,
     });
 
-    let data;
     const orderData = await Order.create({
       phoneNumber,
       addressLine,
@@ -96,19 +98,22 @@ class OrderController {
     });
     // for orderDetails
 
-    products.forEach(async function (product) {
-      data = await OrderDetails.create({
-        quantity: product.productQty,
-        productId: product.productId,
-        orderId: orderData.id,
-      });
-      await Cart.destroy({
-        where: {
+    const orderDetails = await Promise.all(
+      products.map(async function (product) {
+        const orderDetail = await OrderDetails.create({
+          quantity: product.productQty,
           productId: product.productId,
-          userId: userId,
-        },
-      });
-    });
+          orderId: orderData.id,
+        });
+        await Cart.destroy({
+          where: {
+            productId: product.productId,
+            userId: userId,
+          },
+        });
+        return orderDetail;
+      }),
+    );
     //for payment
 
     if (paymentMethod == PaymentMethod.Khalti) {
@@ -136,17 +141,17 @@ class OrderController {
         message: "order created successfull",
         url: khaltiResponse.payment_url,
         pidx: khaltiResponse.pidx,
-        data,
+        data: orderDetails,
       });
 
       console.log(response);
     } else if (paymentMethod == PaymentMethod.Esewa) {
       //baki esewa xa tesko logic
-      data;
+      orderDetails;
     } else {
       res.status(200).json({
         message: "order created successfully",
-        data,
+        data: orderDetails,
       });
     }
   }
@@ -212,53 +217,154 @@ class OrderController {
       });
     }
   }
-  async fetchMyOrdersDetail(req: OrderRequest, res: Response): Promise<void> {
+  async fetchMyOrderDetail(req: OrderRequest, res: Response): Promise<void> {
     const orderId = req.params.id;
     const userId = req.user?.id;
+
     const order = await Order.findOne({
       where: {
         id: orderId,
-        userId: userId,
+        userId,
+      },
+      attributes: [
+        "id",
+        "orderStatus",
+        "addressLine",
+        "city",
+        "state",
+        "totalAmount",
+        "phoneNumber",
+        "firstName",
+        "lastName",
+        "email",
+        "userId",
+      ],
+      include: [
+        {
+          model: Payment,
+          attributes: ["paymentMethod", "paymentStatus"],
+        },
+      ],
+    });
+
+    if (!order) {
+      res.status(404).json({
+        message: "No order found",
+        data: [],
+      });
+      return;
+    }
+
+    const orders = await OrderDetails.findAll({
+      where: {
+        orderId,
       },
       include: [
         {
-          model: OrderDetails,
+          model: Product,
           include: [
             {
-              model: Product,
-              attributes : ["productImage", "productName" , "productPrice"]
+              model: Category,
             },
-            
-            
           ],
-          
+          attributes: ["productImage", "productName", "productPrice"],
         },
-        {
-          model: Payment,
-        attributes: ["paymentMethod", "paymentStatus"],  
-          
-        },
-        
-        // {
-        //   model : Product,
-        //   include : [{
-        //     model : Category
-        //   }],
-        //   attributes : ["productImage", "productName" , "productPrice"]
-        // }
-      ], attributes : ["orderStatus" , "addressLine", "state", "totalAmount" ,"phoneNumber"]
+      ],
     });
-    if (order) {
-      res.status(200).json({
-        message: "order fetched successfully",
-        data: order,
-      });
-    } else {
-      res.status(404).json({
-        message: " no data found",
-        data: [],
-      });
+
+    const items = orders.map((orderDetail) => {
+      const detail = orderDetail.toJSON() as any;
+      return {
+        id: detail.id,
+        quantity: detail.quantity,
+        productId: detail.productId,
+        product: detail.Product,
+      };
+    });
+
+    res.status(200).json({
+      message: "Order fetched successfully",
+      data: orders,
+      order,
+      items,
+    });
+  }
+
+  async cancelOrder(req:OrderRequest,res:Response):Promise<void>{
+    const userId = req.user?.id
+    const orderId = req.params.id
+   const [order] = await Order.findAll({
+      where : {
+        userId : userId,
+        id: orderId
+      }
+    })
+    if(!order){
+      res.status(400).json({
+        message : "no order with that id"
+      })
+      return
     }
+    //check order status
+    if(order.orderStatus === OrderStatus.preparation || order.orderStatus === OrderStatus.ontheway){
+      res.status(403).json({
+        message : " you cannot cancelled order now"
+      })
+      return
+    }
+    await Order.update({
+      orderStatus : OrderStatus.Cancelled
+    },{
+      where : {
+        id : orderId
+      }
+    })
+    res.status(200).json({
+      message : "order cancelled successfully"
+    })
+  }
+  async changeOrderStatus(req:OrderRequest,res:Response){
+    const orderId = req.params.id
+    const {orderStatus} = req.body
+    if(!orderId || !orderStatus){
+      res.status(400).json({
+        message : "please provide orderId and orderStatus"
+      })
+    }
+    await Order.update({orderStatus : orderStatus},{
+      where :{
+        id : orderId
+      }
+    })
+    res.status(200).json({
+      message : "order Status updated successfully"
+    })
+  }
+  async deleteOrder(req:OrderRequest,res:Response){
+    const orderId = req.params.id
+    const order = await Order.findByPk(orderId)
+    const paymentId = order?.paymentId
+    if(!orderId){
+      res.status(404).json({
+        message : "you dont have that orderId order"
+      })
+      return
+    }
+    await OrderDetails.destroy({
+      where : {
+        orderId : orderId
+      }
+    })
+    await Payment.destroy({
+      where : {
+        id : paymentId
+      }
+    })
+    await Order.destroy({
+      where : {
+        id : orderId
+      }
+    })
   }
 }
 
