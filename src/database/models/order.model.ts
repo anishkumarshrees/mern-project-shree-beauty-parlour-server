@@ -31,7 +31,7 @@ class Order extends Model{
         type : DataType.STRING,
         
     })
-    declare AddressLine:string
+    declare addressLine:string
      @Column({
         type : DataType.STRING,
        

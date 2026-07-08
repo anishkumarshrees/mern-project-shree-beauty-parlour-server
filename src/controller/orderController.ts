@@ -7,6 +7,7 @@ import Payment from "../database/models/payment.model";
 import axios from "axios";
 import Product from "../database/models/product.mode";
 import Cart from "../database/models/cart.model";
+import Category from "../database/models/category.model";
 
 interface IProduct {
   productId: string;
@@ -76,6 +77,11 @@ class OrderController {
 
     //for order
     console.log(userId);
+    const paymentData = await Payment.create({
+      paymentMethod: paymentMethod,
+    });
+
+    let data;
     const orderData = await Order.create({
       phoneNumber,
       addressLine,
@@ -86,31 +92,25 @@ class OrderController {
       email,
       city,
       state,
-    })
-    let data;
+      paymentId: paymentData.id,
+    });
     // for orderDetails
+
     products.forEach(async function (product) {
-    data = await OrderDetails.create({
+      data = await OrderDetails.create({
         quantity: product.productQty,
         productId: product.productId,
         orderId: orderData.id,
       });
       await Cart.destroy({
-        where:{  
-            productId : product.productId,
-            userId : userId
-
-        }
-        })
+        where: {
+          productId: product.productId,
+          userId: userId,
+        },
+      });
     });
     //for payment
-        
 
-
-    const paymentData = await Payment.create({
-      orderId: orderData.id,
-      paymentMethod: paymentMethod,
-    });
     if (paymentMethod == PaymentMethod.Khalti) {
       //khlati logic
       const data = {
@@ -136,17 +136,17 @@ class OrderController {
         message: "order created successfull",
         url: khaltiResponse.payment_url,
         pidx: khaltiResponse.pidx,
-       data
+        data,
       });
 
       console.log(response);
     } else if (paymentMethod == PaymentMethod.Esewa) {
       //baki esewa xa tesko logic
-      data
+      data;
     } else {
       res.status(200).json({
         message: "order created successfully",
-        data
+        data,
       });
     }
   }
@@ -185,6 +185,78 @@ class OrderController {
     } else {
       res.status(200).json({
         message: "payment not verified or cancelled",
+      });
+    }
+  }
+  async fetchMyOrders(req: OrderRequest, res: Response): Promise<void> {
+    const userId = req.user?.id;
+    const orders = await Order.findAll({
+      where: {
+        userId: userId,
+      },
+      attributes: ["totalAmount", "id", "orderStatus"],
+      include: {
+        model: Payment,
+        attributes: ["paymentMethod", "paymentStatus"],
+      },
+    });
+    if (orders.length > 0) {
+      res.status(200).json({
+        message: "order fetched successfully",
+        data: orders,
+      });
+    } else {
+      res.status(404).json({
+        message: " no data found",
+        data: [],
+      });
+    }
+  }
+  async fetchMyOrdersDetail(req: OrderRequest, res: Response): Promise<void> {
+    const orderId = req.params.id;
+    const userId = req.user?.id;
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+        userId: userId,
+      },
+      include: [
+        {
+          model: OrderDetails,
+          include: [
+            {
+              model: Product,
+              attributes : ["productImage", "productName" , "productPrice"]
+            },
+            
+            
+          ],
+          
+        },
+        {
+          model: Payment,
+        attributes: ["paymentMethod", "paymentStatus"],  
+          
+        },
+        
+        // {
+        //   model : Product,
+        //   include : [{
+        //     model : Category
+        //   }],
+        //   attributes : ["productImage", "productName" , "productPrice"]
+        // }
+      ], attributes : ["orderStatus" , "addressLine", "state", "totalAmount" ,"phoneNumber"]
+    });
+    if (order) {
+      res.status(200).json({
+        message: "order fetched successfully",
+        data: order,
+      });
+    } else {
+      res.status(404).json({
+        message: " no data found",
+        data: [],
       });
     }
   }

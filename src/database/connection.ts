@@ -28,7 +28,7 @@ try {
 
 //migrate garna parxa/push garna parxa
 //fore:true garyo vani kei change garda tarw false garda chai change garda chagne hudaina so alter:true le teslai help garxa 
-sequelize.sync({force:false , alter:true})
+sequelize.sync({force:false , alter:false})
 .then(()=>{
 console.log("migragted success")
 })
@@ -43,7 +43,7 @@ user.hasMany(Order,{foreignKey:'userId'})
 Order.belongsTo(user,{foreignKey:'userId'})
 
 //order and orderdetails relationship
-Order.hasOne(OrderDetails,{foreignKey:'orderId'})
+Order.hasMany(OrderDetails,{foreignKey:'orderId'})
 OrderDetails.belongsTo(Order,{foreignKey:'orderId'})
  
 
