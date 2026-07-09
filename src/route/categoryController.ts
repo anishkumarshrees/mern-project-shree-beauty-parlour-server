@@ -7,7 +7,7 @@ const router:Router = express.Router()
 
 router.route("/").get(errorHandler (categoryController.getCategories)).post(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), errorHandler(categoryController.addCategory))
 
-router.route("/:id").patch(userMiddleware.accessTo(Role.Admin), errorHandler(categoryController.updateCategory)).delete(userMiddleware.accessTo(Role.Admin) ,errorHandler(categoryController.deleteCategory))
+router.route("/:id").patch(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), errorHandler(categoryController.updateCategory)).delete(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin) ,errorHandler(categoryController.deleteCategory))
 
 
 
