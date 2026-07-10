@@ -1,5 +1,6 @@
 
-import { Table,Column,Model,DataType, AllowNull } from "sequelize-typescript";
+import { Table,Column,Model,DataType, AllowNull, ForeignKey, BelongsTo } from "sequelize-typescript";
+import Category from "./category.model";
 
 @Table({
     tableName:"products", //uta gui ma dekhina name
@@ -7,6 +8,12 @@ import { Table,Column,Model,DataType, AllowNull } from "sequelize-typescript";
     timestamps:true
 })
 class Product extends Model{
+//     @ForeignKey(() => Category)
+// @Column(DataType.UUID)
+// declare categoryId: string;
+
+// @BelongsTo(() => Category)
+// declare Category: Category;
     @Column({
         primaryKey : true,
         type : DataType.UUID,

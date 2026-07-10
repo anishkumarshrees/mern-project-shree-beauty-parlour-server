@@ -9,9 +9,9 @@ import Category from "../database/models/category.model";
 
 class ProductController{
   async  createProduct(req:Request,res:Response):Promise<void>{
-        const {productName,productDescription,productTotalStock,discount,CategoryId,productPrice} = req.body
+        const {productName,productDescription,productTotalStock,discount,categoryId,productPrice} = req.body
      const filename =   req.file ? req.file.filename : "anish.jpg"
-        if(!productName || !productDescription || !productTotalStock  ||!CategoryId || !productPrice ){
+        if(!productName || !productDescription || !productTotalStock  ||!categoryId || !productPrice ){
             res.status(400).json({
                 message:"please provide all the information of product"
             })
@@ -22,7 +22,7 @@ productName,
 productDescription,
 productTotalStock,
 discount:discount || 0,
-CategoryId:CategoryId,
+categoryId:categoryId,
 productPrice,
 productImage : filename,
 

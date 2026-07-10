@@ -227,6 +227,35 @@ static async deleteUser(req:Request,res:Response){
         message:  "user deleted successfully"
     })
 }
+async fetchUsers(req:Request,res:Response){
+    const users = await user.findAll({
+        attributes : [
+            "id","userName","userEmail"
+        ]
+    })
+    res.status(200).json({
+        message : "users fetched successfully",
+        data : users
+    })
+}
+async deleteUser(req:Request,res:Response){
+    const {id} = req.params
+    if(!id){
+        res.status(400).json({
+            message : "please provide id"
+        })
+        return
+    }
+    await user.destroy({
+        where : {
+            id
+        }
+    })
+    res.status(200).json({
+        message : "users deleted successfully",
+      
+    })
+}
 }
 
 export  {AuthController}
