@@ -194,11 +194,33 @@ class OrderController {
     }
   }
   async fetchMyOrders(req: OrderRequest, res: Response): Promise<void> {
-    const userId = req.user?.id;
+   
+      const orders = await Order.findAll({
+       
+        attributes : ["totalAmount","id","orderStatus"], 
+        include : {
+          model : Payment, 
+          attributes : ["paymentMethod", "paymentStatus"]
+        }
+      
+    });
+    if (orders.length > 0) {
+      res.status(200).json({
+        message: "order fetched successfully",
+        data: orders,
+      });
+    } else {
+      res.status(404).json({
+        message: " no data found",
+        data: [],
+      });
+    }
+  }
+  async fetchAllMyOrders(req: OrderRequest, res: Response): Promise<void> {
+    console.log("✅ fetchAllMyOrders called");
+   
     const orders = await Order.findAll({
-      where: {
-        userId: userId,
-      },
+     
       attributes: ["totalAmount", "id", "orderStatus"],
       include: {
         model: Payment,

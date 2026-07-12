@@ -4,7 +4,6 @@ import OrderController from "../controller/orderController";
 import errorHandler from "../services/errorHanndler";
 import orderController from "../controller/orderController";
 const router: Router = express.Router();
-
 router
   .route("/")
   .post(
@@ -16,6 +15,15 @@ router
     errorHandler(orderController.fetchMyOrders),
   );
 router
+  .route("/test")
+  .get(
+    userMiddleware.isUserLoggedIn,
+    userMiddleware.accessTo(Role.Admin),
+    errorHandler(orderController.fetchAllMyOrders),
+  );
+
+
+router
   .route("/verify-pidx")
   .post(
     userMiddleware.isUserLoggedIn,
@@ -25,14 +33,28 @@ router
     userMiddleware.isUserLoggedIn,
     errorHandler(orderController.fetchMyOrderDetail),
   );
- router.route("/admin/cancel-order/:id").post(userMiddleware.isUserLoggedIn ,userMiddleware.accessTo(Role.Admin),errorHandler(orderController.cancelOrder))
-  router.route("/admin/delete-order/:id").post(userMiddleware.isUserLoggedIn ,userMiddleware.accessTo(Role.Admin),errorHandler(orderController.deleteOrder))  
- router.route("/cancel-order/:id").patch(userMiddleware.isUserLoggedIn ,userMiddleware.accessTo(Role.Customer),errorHandler(orderController.cancelOrder)) 
+
 router
-  .route("/:id")
-  .get(
+  .route("/admin/cancel-order/:id")
+  .post(
     userMiddleware.isUserLoggedIn,
-    errorHandler(orderController.fetchMyOrderDetail),
+    userMiddleware.accessTo(Role.Admin),
+    errorHandler(orderController.cancelOrder),
   );
+router
+  .route("/admin/delete-order/:id")
+  .post(
+    userMiddleware.isUserLoggedIn,
+    userMiddleware.accessTo(Role.Admin),
+    errorHandler(orderController.deleteOrder),
+  );
+router
+  .route("/cancel-order/:id")
+  .patch(
+    userMiddleware.isUserLoggedIn,
+    userMiddleware.accessTo(Role.Customer),
+    errorHandler(orderController.cancelOrder),
+  );
+
 
 export default router;

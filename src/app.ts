@@ -17,7 +17,7 @@ app.use(express.json());
 app.use("/api/",authRoute)
 app.use("/api/category",cateogryRoute)
 app.use("/api/product",productRoute)
-app.use("/api/order",orderRoute)
+app.use("/api/orders",orderRoute)
 app.use("/api/cart",cartRoute)
 app.use(express.static("./src/uploads"))
 export default app
