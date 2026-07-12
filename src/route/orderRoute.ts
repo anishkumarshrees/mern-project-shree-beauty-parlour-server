@@ -15,7 +15,7 @@ router
     errorHandler(orderController.fetchMyOrders),
   );
 router
-  .route("/test")
+  .route("/all")
   .get(
     userMiddleware.isUserLoggedIn,
     userMiddleware.accessTo(Role.Admin),
@@ -55,6 +55,7 @@ router
     userMiddleware.accessTo(Role.Customer),
     errorHandler(orderController.cancelOrder),
   );
+  router.route("/:id").get(userMiddleware.isUserLoggedIn,errorHandler(orderController.fetchMyOrderDetails))
 
 
 export default router;

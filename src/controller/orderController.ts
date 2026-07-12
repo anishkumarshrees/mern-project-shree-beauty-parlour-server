@@ -311,6 +311,78 @@ class OrderController {
       items,
     });
   }
+  async fetchMyOrderDetails(req: OrderRequest, res: Response): Promise<void> {
+    const orderId = req.params.id;
+    const userId = req.user?.id;
+
+    const order = await Order.findOne({
+      where: {
+        id: orderId,
+       
+      },
+      attributes: [
+        "id",
+        "orderStatus",
+        "addressLine",
+        "city",
+        "state",
+        "totalAmount",
+        "phoneNumber",
+        "firstName",
+        "lastName",
+        "email",
+        "userId",
+      ],
+      include: [
+        {
+          model: Payment,
+          attributes: ["paymentMethod", "paymentStatus"],
+        },
+      ],
+    });
+
+    if (!order) {
+      res.status(404).json({
+        message: "No order found",
+        data: [],
+      });
+      return;
+    }
+
+    const orders = await OrderDetails.findAll({
+      where: {
+        orderId,
+      },
+      include: [
+        {
+          model: Product,
+          include: [
+            {
+              model: Category,
+            },
+          ],
+          attributes: ["productImage", "productName", "productPrice"],
+        },
+      ],
+    });
+
+    const items = orders.map((orderDetail) => {
+      const detail = orderDetail.toJSON() as any;
+      return {
+        id: detail.id,
+        quantity: detail.quantity,
+        productId: detail.productId,
+        product: detail.Product,
+      };
+    });
+
+    res.status(200).json({
+      message: "Order fetched successfully",
+      data: orders,
+      order,
+      items,
+    });
+  }
 
   async cancelOrder(req:OrderRequest,res:Response):Promise<void>{
     const userId = req.user?.id
