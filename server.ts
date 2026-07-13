@@ -18,18 +18,20 @@ function startServer() {
   });
   const io = new Server(server, {
     cors: {
-      origin:  ["http://localhost:5173", "http://localhost:3000"],
+      origin: ["http://localhost:5173", "http://localhost:3000"],
     },
   });
-  let onlineUsers:{
-    socketId:string,userId:string,role:string
-  } []= [];
-  let addToOnlineUsers=(socketId:string,userId:string,role:string)=>{
-      onlineUsers=  onlineUsers.filter((user)=>user.userId !==userId)
-      onlineUsers.push({socketId,userId,role})
-  }
+  let onlineUsers: {
+    socketId: string;
+    userId: string;
+    role: string;
+  }[] = [];
+  let addToOnlineUsers = (socketId: string, userId: string, role: string) => {
+    onlineUsers = onlineUsers.filter((user) => user.userId !== userId);
+    onlineUsers.push({ socketId, userId, role });
+  };
   io.on("connection", (socket) => {
-    const  token  = socket.handshake.headers.token
+    const { token } = socket.handshake.auth;
     if (token) {
       jwt.verify(
         token as string,
@@ -44,31 +46,38 @@ function startServer() {
               return;
             }
             //vetyo vani user id grab garni
-            addToOnlineUsers(socket.id,result.userId,userData.role)
+            addToOnlineUsers(socket.id, result.userId, userData.role);
+            console.log(onlineUsers);
           }
         },
       );
+    } else {
+      socket.emit("error", "please provide token");
     }
-    else{
-        socket.emit("error","please provide token")
-    }
-    socket.on("updateOrderstatus",async (data)=>{
-      console.log(data)
-        const {status,orderId,userId} = data
-      const findUser =  onlineUsers.find(user=>user.userId == userId)
-      if(findUser){
-       await Order.update({
-          OrderStatus : status
-        },{
-          where:{
-            id : orderId
-          }
-        })
-        io.to(findUser.socketId).emit("success","Order status updated successfully")
-      }else{
-        socket.emit("erroe","user is not online")
+    socket.on("updateOrderStatus", async (data) => {
+      const { status, orderId, userId } = data;
+
+      const findUser = onlineUsers.find((user) => user.userId == userId);
+
+      if (findUser) {
+        await Order.update(
+          {
+            orderStatus: status,
+          },
+          {
+            where: {
+              id: orderId,
+            },
+          },
+        );
+
+        const updatedOrder = await Order.findByPk(orderId);
+
+        io.to(findUser.socketId).emit("statusUpdated", updatedOrder);
+
+        console.log("Updated order sent:", updatedOrder);
       }
-    })
+    });
 
     console.log("client connected successfully");
   });

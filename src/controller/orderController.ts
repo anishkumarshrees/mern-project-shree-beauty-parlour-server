@@ -194,8 +194,11 @@ class OrderController {
     }
   }
   async fetchMyOrders(req: OrderRequest, res: Response): Promise<void> {
-   
+   const userId = req.user?.id 
       const orders = await Order.findAll({
+         where : {
+          userId
+        }, 
        
         attributes : ["totalAmount","id","orderStatus"], 
         include : {
@@ -318,6 +321,7 @@ class OrderController {
     const order = await Order.findOne({
       where: {
         id: orderId,
+        // userId : req.user?.id
        
       },
       attributes: [
