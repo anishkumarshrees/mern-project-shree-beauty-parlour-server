@@ -1,66 +1,62 @@
 import { ForeignKey, Sequelize } from "sequelize-typescript";
-import envConfig from "../config/config.ts";
-import user from "./models/user.model.ts";
-import Product from "./models/product.mode.ts";
-import Category from "./models/category.model.ts";
-import OrderDetails from "./models/orderDetails.ts";
-import Order from "./models/order.model.ts";
-import Payment from "./models/payment.model.ts";
-import Cart from "./models/cart.model.ts";
+import envConfig from "../config/config";
+import user from "./models/user.model";
+import Product from "./models/product.mode";
+import Category from "./models/category.model";
+import OrderDetails from "./models/orderDetails";
+import Order from "./models/order.model";
+import Payment from "./models/payment.model";
+import Cart from "./models/cart.model";
 
-const sequelize =new Sequelize(envConfig.connectionString as string,{
-     models : [__dirname + '/models']
-})
+const sequelize = new Sequelize(envConfig.connectionString as string, {
+  models: [__dirname + "/models"],
+});
 
 try {
-    sequelize.authenticate()
-    .then(()=>{
-        console.log("pw milyo")
+  sequelize
+    .authenticate()
+    .then(() => {
+      console.log("pw milyo");
     })
- .catch (err=>{
-    ()=>
-        console.log("pw milyo")
-    
- }) 
-} catch (error){
-    console.log(error)
+    .catch((err) => {
+      () => console.log("pw milyo");
+    });
+} catch (error) {
+  console.log(error);
 }
 
 //migrate garna parxa/push garna parxa
-//fore:true garyo vani kei change garda tarw false garda chai change garda chagne hudaina so alter:true le teslai help garxa 
-sequelize.sync({force:false , alter:false})
-.then(()=>{
-console.log("migragted success")
-})
+//fore:true garyo vani kei change garda tarw false garda chai change garda chagne hudaina so alter:true le teslai help garxa
+sequelize.sync({ force: false, alter: false }).then(() => {
+  console.log("migragted success");
+});
 
 //realtionship between prduct and category
 
 Product.belongsTo(Category, { foreignKey: "categoryId" });
 Category.hasMany(Product, { foreignKey: "categoryId" });
 
-//user and order relationship 
-user.hasMany(Order,{foreignKey:'userId'})
-Order.belongsTo(user,{foreignKey:'userId'})
+//user and order relationship
+user.hasMany(Order, { foreignKey: "userId" });
+Order.belongsTo(user, { foreignKey: "userId" });
 
 //order and orderdetails relationship
-Order.hasMany(OrderDetails,{foreignKey:'orderId'})
-OrderDetails.belongsTo(Order,{foreignKey:'orderId'})
- 
-
+Order.hasMany(OrderDetails, { foreignKey: "orderId" });
+OrderDetails.belongsTo(Order, { foreignKey: "orderId" });
 
 //payment and order raltionship
-Payment.hasOne(Order,{foreignKey:'paymentId'})
-Order.belongsTo(Payment,{foreignKey:'paymentId'})
+Payment.hasOne(Order, { foreignKey: "paymentId" });
+Order.belongsTo(Payment, { foreignKey: "paymentId" });
 
 //order and product relationship
-Product.hasMany(OrderDetails,{
-    foreignKey:"productId",
-    onDelete:"CASCADE"
+Product.hasMany(OrderDetails, {
+  foreignKey: "productId",
+  onDelete: "CASCADE",
 });
 
-OrderDetails.belongsTo(Product,{
-    foreignKey:"productId",
-    onDelete:"CASCADE"
+OrderDetails.belongsTo(Product, {
+  foreignKey: "productId",
+  onDelete: "CASCADE",
 });
 
 //cart and order raltionship
@@ -71,4 +67,4 @@ user.hasMany(Cart, { foreignKey: "userId" });
 Cart.belongsTo(Product, { foreignKey: "productId" });
 Product.hasMany(Cart, { foreignKey: "productId" });
 
-export default sequelize
+export default sequelize;

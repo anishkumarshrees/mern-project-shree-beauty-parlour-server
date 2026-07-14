@@ -1,12 +1,12 @@
 import express from "express";
-import "./database/connection.ts";
-import authRoute from "./route/user.ts";
+import "./database/connection";
+import authRoute from "./route/user";
 
-import cateogryRoute from "./route/categoryController.ts";
-import productRoute from "./route/productRoute.ts";
+import cateogryRoute from "./route/categoryController";
+import productRoute from "./route/productRoute";
 
-import orderRoute from "./route/orderRoute.ts";
-import cartRoute from "./route/cartRoute.ts";
+import orderRoute from "./route/orderRoute";
+import cartRoute from "./route/cartRoute";
 import cors from "cors";
 const app = express();
 app.use(

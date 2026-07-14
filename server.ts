@@ -1,12 +1,12 @@
-import adminSeeder from "./src/aminSeeder.ts";
-import app from "./src/app.ts";
-import envConfig from "./src/config/config.ts";
-import categoryController from "./src/controller/categoryController.ts";
+import adminSeeder from "./src/aminSeeder";
+import app from "./src/app";
+import envConfig from "./src/config/config";
+import categoryController from "./src/controller/categoryController";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
-import user from "./src/database/models/user.model.ts";
-import Order from "./src/database/models/order.model.ts";
-import { OrderStatus } from "./src/globals/types/index.ts";
+import user from "./src/database/models/user.model";
+import Order from "./src/database/models/order.model";
+import { OrderStatus } from "./src/globals/types/index";
 
 function startServer() {
   const port = envConfig.port || 4000;
