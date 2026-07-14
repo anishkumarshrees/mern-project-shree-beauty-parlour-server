@@ -53,8 +53,15 @@ Payment.hasOne(Order,{foreignKey:'paymentId'})
 Order.belongsTo(Payment,{foreignKey:'paymentId'})
 
 //order and product relationship
-Product.hasMany(OrderDetails,{foreignKey:'productId'})
-OrderDetails.belongsTo(Product,{foreignKey:'productId'})
+Product.hasMany(OrderDetails,{
+    foreignKey:"productId",
+    onDelete:"CASCADE"
+});
+
+OrderDetails.belongsTo(Product,{
+    foreignKey:"productId",
+    onDelete:"CASCADE"
+});
 
 //cart and order raltionship
 Cart.belongsTo(user, { foreignKey: "userId" });
