@@ -12,7 +12,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      "http://localhost:5173",
+      "https://shree-beauty-parlour-six.vercel.app",
+    ],
+    credentials: true,
   })
 );
 

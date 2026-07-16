@@ -119,8 +119,8 @@ class OrderController {
     if (paymentMethod == PaymentMethod.Khalti) {
       //khlati logic
       const data = {
-        return_url: "http://localhost:5173/",
-        website_url: "http://localhost:5173/",
+        return_url: "https://shree-beauty-parlour-six.vercel.app//",
+        website_url: "https://shree-beauty-parlour-six.vercel.app//",
         amount: totalAmount * 100,
         purchase_order_id: orderData.id,
         purchase_order_name: "order_" + orderData.id,

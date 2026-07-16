@@ -17,10 +17,14 @@ function startServer() {
     adminSeeder();
   });
   const io = new Server(server, {
-    cors: {
-      origin: "https://shree-beauty-parlour-six.vercel.app",
-    },
-  });
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "https://shree-beauty-parlour-six.vercel.app",
+    ],
+    credentials: true,
+  },
+});
   let onlineUsers: {
     socketId: string;
     userId: string;
